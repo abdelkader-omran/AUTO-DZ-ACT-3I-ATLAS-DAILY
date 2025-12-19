@@ -1,1 +1,70 @@
-{}
+{
+  "object": "3I/ATLAS",
+  "activation_level": "international_official",
+  "authority_basis": "IAU / NASA / ESA",
+  "sources": [
+    {
+      "id": "IAU_MPC",
+      "name": "IAU Minor Planet Center",
+      "institution": "Smithsonian Astrophysical Observatory (Harvard & Smithsonian)",
+      "authority": "International Astronomical Union (IAU)",
+      "funding": "NASA",
+      "role": "Global clearinghouse for observations, designations, and orbits of minor planets and comets",
+      "official": true,
+      "url": "https://www.minorplanetcenter.net/",
+      "data_access": [
+        "https://www.minorplanetcenter.net/db_search",
+        "https://www.minorplanetcenter.net/iau/MPCORB.html"
+      ]
+    },
+    {
+      "id": "NASA_JPL_SBDB",
+      "name": "NASA/JPL Small-Body Database",
+      "institution": "Jet Propulsion Laboratory (JPL)",
+      "authority": "NASA",
+      "role": "High-precision orbital elements, physical parameters, discovery details, and close-approach data",
+      "official": true,
+      "url": "https://ssd.jpl.nasa.gov/sb/",
+      "data_access": [
+        "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html",
+        "https://ssd.jpl.nasa.gov/tools/sbdb_query.html"
+      ]
+    },
+    {
+      "id": "NASA_JPL_HORIZONS",
+      "name": "NASA/JPL Horizons System",
+      "institution": "Jet Propulsion Laboratory (JPL)",
+      "authority": "NASA",
+      "role": "Authoritative ephemerides (positions and velocities) for Solar System bodies",
+      "official": true,
+      "url": "https://ssd.jpl.nasa.gov/horizons/"
+    },
+    {
+      "id": "ESA_NEOCC",
+      "name": "ESA Near-Earth Object Coordination Centre",
+      "institution": "European Space Agency (ESA)",
+      "authority": "ESA Planetary Defence Office",
+      "role": "NEO monitoring, impact risk assessment, European observational coordination",
+      "official": true,
+      "url": "https://neo.ssa.esa.int/"
+    },
+    {
+      "id": "NASA_CNEOS",
+      "name": "NASA Center for Near-Earth Object Studies",
+      "institution": "Jet Propulsion Laboratory (JPL)",
+      "authority": "NASA",
+      "role": "Close-approach analysis, impact monitoring (Scout, Sentry)",
+      "official": true,
+      "url": "https://cneos.jpl.nasa.gov/"
+    },
+    {
+      "id": "NASA_PDS_SMALL_BODIES",
+      "name": "NASA Planetary Data System – Small Bodies Node",
+      "institution": "NASA Planetary Data System",
+      "authority": "NASA",
+      "role": "Archival mission and derived data for asteroids and comets",
+      "official": true,
+      "url": "https://pds-smallbodies.astro.umd.edu/"
+    }
+  ]
+}
