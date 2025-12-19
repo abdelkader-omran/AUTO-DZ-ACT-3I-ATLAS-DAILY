@@ -77,6 +77,7 @@ It is designed for:
 - DOI-based publication workflows
 
 ---
+This repository constitutes the authoritative data layer for AUTO DZ ACT verification states. The TRIZEL Monitor is used solely as an automation tool and is not required for independent verification.
 
 ## License
 
