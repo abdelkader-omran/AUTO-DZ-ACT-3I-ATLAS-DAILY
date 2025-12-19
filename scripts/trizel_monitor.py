@@ -1,299 +1,425 @@
 #!/usr/bin/env python3
-"""
-TRIZEL Monitor — Daily Official Data Monitor (AUTO-DZ-ACT)
-- Produces daily raw snapshot JSON + manifest JSON (checksums, timestamps)
-- Fetches official data where possible (current step: NASA/JPL SBDB API)
-- Uses a designation resolver (tries multiple official strings) to reduce query failures
-- No interpretation, no post-processing of scientific meaning (raw-only)
-"""
+# -*- coding: utf-8 -*-
 
-import json
+import argparse
+import base64
 import hashlib
-from datetime import datetime, timezone
+import json
+import os
+import sys
+from dataclasses import dataclass
+from datetime import datetime, date, timedelta, timezone
 from pathlib import Path
-import urllib.request
-import urllib.parse
-import urllib.error
+from typing import Any, Dict, List, Optional, Tuple
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
 
 
-# -----------------------------
-# Paths
-# -----------------------------
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_FILE = ROOT / "registry" / "sources.json"
-
 DATA_DIR = ROOT / "data"
 SNAPSHOT_DIR = DATA_DIR / "snapshots"
 MANIFEST_DIR = DATA_DIR / "manifests"
 
 
-# -----------------------------
-# Constants
-# -----------------------------
-PROJECT_NAME = "TRIZEL Monitor"
-PIPELINE_NAME = "Daily Official Data Monitor"
-
-# Official API used in this acquisition step:
-SBDB_ENDPOINT = "https://ssd-api.jpl.nasa.gov/sbdb.api"
-
-# Some services may not accept "3I/ATLAS" directly, so we try multiple known/expected designations.
-DESIGNATION_CANDIDATES = [
-    "3I/ATLAS",
-    "C/2025 N1",
-    "ATLAS",
-    "C/2025 N1 (ATLAS)"
-]
+# Safety limits (to avoid huge downloads in Actions)
+DEFAULT_TIMEOUT_SEC = 25
+MAX_BYTES = 5 * 1024 * 1024         # 5 MB hard cap per source
+MAX_TEXT_CHARS = 20000             # store at most 20k chars of non-JSON text
+USER_AGENT = "AUTO-DZ-ACT-TRIZEL-Monitor/1.0 (+https://github.com/abdelkader-omran/AUTO-DZ-ACT-3I-ATLAS-DAILY)"
 
 
-# -----------------------------
-# Utilities
-# -----------------------------
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
-            h.update(chunk)
-    return h.hexdigest()
+def iso_utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def utc_now():
-    now = datetime.now(timezone.utc)
-    return now, now.isoformat().replace("+00:00", "Z")
+def parse_yyyy_mm_dd(s: str) -> date:
+    try:
+        y, m, d = s.split("-")
+        return date(int(y), int(m), int(d))
+    except Exception:
+        raise ValueError(f"Invalid date '{s}'. Expected YYYY-MM-DD.")
 
 
-def http_get_json(url: str, params: dict, timeout: int = 30):
-    """
-    Minimal JSON GET using urllib (no extra dependencies).
-    Returns: (ok: bool, payload: dict, error: dict|None, full_url: str)
-    """
-    query = urllib.parse.urlencode(params, doseq=True, safe="/()")
-    full_url = f"{url}?{query}"
+def iter_days(start: date, end: date) -> List[date]:
+    if end < start:
+        raise ValueError("end_date must be >= start_date")
+    days = []
+    cur = start
+    while cur <= end:
+        days.append(cur)
+        cur += timedelta(days=1)
+    return days
 
-    req = urllib.request.Request(
-        full_url,
-        headers={
-            "User-Agent": "AUTO-DZ-ACT TRIZEL Monitor/1.0 (GitHub Actions; scientific archiving)",
-            "Accept": "application/json",
-        },
-        method="GET",
-    )
+
+@dataclass
+class FetchResult:
+    ok: bool
+    url: str
+    status: Optional[int]
+    content_type: Optional[str]
+    retrieved_utc: str
+    sha256: Optional[str]
+    bytes_len: int
+    parsed_json: Optional[Any]
+    text_preview: Optional[str]
+    truncated: bool
+    error: Optional[str]
+
+
+def fetch_url(url: str, timeout_sec: int = DEFAULT_TIMEOUT_SEC) -> FetchResult:
+    retrieved = iso_utc_now()
+    req = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "*/*"})
+    raw = b""
+    status = None
+    ctype = None
 
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            raw = resp.read() or b""
-            payload = json.loads(raw.decode("utf-8", errors="replace")) if raw else {}
-            return True, payload, None, full_url
+        with urlopen(req, timeout=timeout_sec) as resp:
+            status = getattr(resp, "status", None)
+            ctype = resp.headers.get("Content-Type")
+            # Read at most MAX_BYTES + 1 to detect overflow
+            chunk = resp.read(MAX_BYTES + 1)
+            if len(chunk) > MAX_BYTES:
+                raw = chunk[:MAX_BYTES]
+                h = sha256_bytes(raw)
+                return FetchResult(
+                    ok=False,
+                    url=url,
+                    status=status,
+                    content_type=ctype,
+                    retrieved_utc=retrieved,
+                    sha256=h,
+                    bytes_len=len(raw),
+                    parsed_json=None,
+                    text_preview=None,
+                    truncated=True,
+                    error=f"Response exceeded MAX_BYTES={MAX_BYTES} (stored first {MAX_BYTES} bytes).",
+                )
+            raw = chunk
 
-    except urllib.error.HTTPError as e:
-        body = b""
+        h = sha256_bytes(raw)
+
+        # Try JSON parse if content-type suggests JSON OR looks like JSON
+        parsed_json = None
+        text_preview = None
+        truncated = False
+
+        looks_json = False
+        if ctype and ("application/json" in ctype.lower() or "text/json" in ctype.lower()):
+            looks_json = True
+        else:
+            # heuristic: starts with { or [
+            s = raw.lstrip()[:1]
+            looks_json = (s == b"{" or s == b"[")
+
+        if looks_json:
+            try:
+                parsed_json = json.loads(raw.decode("utf-8"))
+            except Exception:
+                # fallback to text preview
+                txt = raw.decode("utf-8", errors="replace")
+                if len(txt) > MAX_TEXT_CHARS:
+                    text_preview = txt[:MAX_TEXT_CHARS]
+                    truncated = True
+                else:
+                    text_preview = txt
+        else:
+            txt = raw.decode("utf-8", errors="replace")
+            if len(txt) > MAX_TEXT_CHARS:
+                text_preview = txt[:MAX_TEXT_CHARS]
+                truncated = True
+            else:
+                text_preview = txt
+
+        return FetchResult(
+            ok=True,
+            url=url,
+            status=status,
+            content_type=ctype,
+            retrieved_utc=retrieved,
+            sha256=h,
+            bytes_len=len(raw),
+            parsed_json=parsed_json,
+            text_preview=text_preview,
+            truncated=truncated,
+            error=None,
+        )
+
+    except HTTPError as e:
+        # HTTPError is also a file-like response; still try to read body safely
         try:
-            body = e.read() or b""
+            ctype = e.headers.get("Content-Type")
+            body = e.read(MAX_BYTES + 1)
+            if len(body) > MAX_BYTES:
+                body = body[:MAX_BYTES]
+            raw = body
+            h = sha256_bytes(raw)
         except Exception:
-            body = b""
-
-        err = {
-            "type": "http_error",
-            "http_status": int(getattr(e, "code", 0) or 0),
-            "message": str(e),
-            "url": full_url,
-            "body_preview": body[:500].decode("utf-8", errors="replace"),
-        }
-        return False, {}, err, full_url
-
-    except urllib.error.URLError as e:
-        err = {
-            "type": "network_error",
-            "message": str(e),
-            "url": full_url,
-        }
-        return False, {}, err, full_url
-
+            h = None
+            raw = b""
+        return FetchResult(
+            ok=False,
+            url=url,
+            status=getattr(e, "code", None),
+            content_type=ctype,
+            retrieved_utc=retrieved,
+            sha256=h,
+            bytes_len=len(raw),
+            parsed_json=None,
+            text_preview=None,
+            truncated=False,
+            error=f"HTTPError: {e}",
+        )
+    except URLError as e:
+        return FetchResult(
+            ok=False,
+            url=url,
+            status=None,
+            content_type=None,
+            retrieved_utc=retrieved,
+            sha256=None,
+            bytes_len=0,
+            parsed_json=None,
+            text_preview=None,
+            truncated=False,
+            error=f"URLError: {e}",
+        )
     except Exception as e:
-        err = {
-            "type": "request_error",
-            "message": str(e),
-            "url": full_url,
-        }
-        return False, {}, err, full_url
-
-
-def fetch_sbdb_with_resolver():
-    """
-    Try multiple designation strings until SBDB returns payload.
-    Returns:
-      {
-        "has_payload": bool,
-        "query_used": str|None,
-        "payload": dict,
-        "error": dict|None,
-        "attempts": [ {designation, ok, url, error} ... ]
-      }
-    """
-    attempts = []
-    last_error = None
-
-    for designation in DESIGNATION_CANDIDATES:
-        ok, payload, err, full_url = http_get_json(
-            SBDB_ENDPOINT,
-            params={"sstr": designation, "orb": 1, "phys-par": 1},
-            timeout=30,
+        return FetchResult(
+            ok=False,
+            url=url,
+            status=None,
+            content_type=None,
+            retrieved_utc=retrieved,
+            sha256=None,
+            bytes_len=0,
+            parsed_json=None,
+            text_preview=None,
+            truncated=False,
+            error=f"Exception: {e}",
         )
 
-        attempts.append(
-            {
-                "designation": designation,
-                "ok": bool(ok and payload),
-                "url": full_url,
-                "error": err,
-            }
-        )
 
-        if ok and payload:
-            return {
-                "has_payload": True,
-                "query_used": designation,
-                "payload": payload,
-                "error": None,
-                "attempts": attempts,
-            }
-
-        last_error = err
-
-    return {
-        "has_payload": False,
-        "query_used": None,
-        "payload": {},
-        "error": last_error
-        or {"type": "unknown_error", "message": "All designation candidates failed"},
-        "attempts": attempts,
-    }
+def load_registry() -> Dict[str, Any]:
+    if not REGISTRY_FILE.exists():
+        raise FileNotFoundError(f"Registry file not found: {REGISTRY_FILE}")
+    with open(REGISTRY_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
-def build_platforms_registry():
-    """
-    Registry of official / institutional platforms (evidence targets).
-    Not all are machine-fetchable in this monitor step; this is a registry for provenance.
-    """
-    return {
-        "intent": "Evidence & archive targets (official platforms). Not all are machine-fetchable via API.",
-        "categories": {
-            "authoritative_orbit_and_astrometry": [
-                {
-                    "name": "Minor Planet Center (MPC)",
-                    "role": "IAU clearinghouse for astrometry/orbits",
-                    "type": "registry",
-                },
-                {
-                    "name": "NASA/JPL SSD SBDB",
-                    "role": "public small-body database API",
-                    "type": "api",
-                },
-                {
-                    "name": "NASA/JPL Horizons",
-                    "role": "ephemerides / vectors / observer geometry",
-                    "type": "service",
-                },
-            ],
-            "major_space_agencies_and_missions": [
-                {"name": "ESA", "role": "missions + archives", "type": "agency"},
-                {"name": "ESO", "role": "ground-based observatory archives", "type": "observatory"},
-                {"name": "JAXA", "role": "missions + archives", "type": "agency"},
-                {"name": "CNSA", "role": "missions/announcements; data varies", "type": "agency"},
-                {"name": "NASA", "role": "missions + archives", "type": "agency"},
-            ],
-            "space_and_ground_archives": [
-                {"name": "MAST (HST/JWST)", "role": "space telescope archive", "type": "archive"},
-                {"name": "ESO Science Archive", "role": "ESO observational archive", "type": "archive"},
-                {"name": "HEASARC", "role": "high-energy mission archive gateway", "type": "archive"},
-                {"name": "XMM-Newton Science Archive (XSA)", "role": "XMM data archive (ESA)", "type": "archive"},
-            ],
-        },
-        "policy": {
-            "verification_first": "Every claim should cite a primary dataset record (ObsID/DOI/solution id).",
-            "no_unverifiable_claims": "Platforms without public DOI/ObsID/product are tracked as 'media-only' until operationalized.",
-        },
-    }
-
-
-# -----------------------------
-# Main
-# -----------------------------
-def main():
-    now, timestamp = utc_now()
-    day_compact = now.strftime("%Y%m%d")
-    time_compact = now.strftime("%H%M%S")
-
+def ensure_dirs() -> None:
     SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
     MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Load registry (sources list + object label)
-    with open(REGISTRY_FILE, "r", encoding="utf-8") as f:
-        registry = json.load(f)
 
-    query_designation = registry.get("object", "3I/ATLAS")
+def build_snapshot_for_day(registry: Dict[str, Any], requested_day: date) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    """
+    Returns:
+      snapshot_dict, sources_records
+    """
+    retrieved_utc = iso_utc_now()
+    day_str = requested_day.strftime("%Y-%m-%d")
 
-    # Fetch official SBDB snapshot (raw)
-    sbdb = fetch_sbdb_with_resolver()
+    sources = registry.get("sources", [])
+    source_records: List[Dict[str, Any]] = []
 
-    # Build snapshot (raw-only)
-    snapshot = {
-        "metadata": {
-            "project": PROJECT_NAME,
-            "pipeline": PIPELINE_NAME,
-            "query_designation": query_designation,
-            "resolved_designation": sbdb["query_used"],
-            "retrieved_utc": timestamp,
-            "sources": {
-                "sbdb": SBDB_ENDPOINT,
-                "note": "SBDB is used as an official orbit/phys snapshot endpoint in this acquisition step.",
-            },
-            "integrity": {
-                "has_sbdb_payload": bool(sbdb["has_payload"]),
-                "has_error": bool(not sbdb["has_payload"]),
-            },
+    # Fetch each source as of *now*; requested_day is a labeling key for backfill.
+    # This preserves reproducibility of what was retrieved, and records a clear distinction.
+    for src in sources:
+        name = src.get("name") or src.get("id") or "unnamed-source"
+        url = src.get("url")
+        kind = src.get("kind") or src.get("type") or None
+
+        if not url:
+            source_records.append({
+                "name": name,
+                "kind": kind,
+                "url": None,
+                "ok": False,
+                "error": "Missing 'url' in registry entry.",
+            })
+            continue
+
+        r = fetch_url(url)
+
+        rec: Dict[str, Any] = {
+            "name": name,
+            "kind": kind,
+            "url": r.url,
+            "ok": r.ok,
+            "status": r.status,
+            "content_type": r.content_type,
+            "retrieved_utc": r.retrieved_utc,
+            "sha256": r.sha256,
+            "bytes_len": r.bytes_len,
+            "truncated": r.truncated,
+        }
+
+        # Store JSON payload if parsed, otherwise store text preview.
+        # (We keep it "raw-friendly" while avoiding binary blobs in JSON.)
+        if r.parsed_json is not None:
+            rec["payload_json"] = r.parsed_json
+        elif r.text_preview is not None:
+            rec["payload_text_preview"] = r.text_preview
+
+        if r.error:
+            rec["error"] = r.error
+
+        source_records.append(rec)
+
+    snapshot: Dict[str, Any] = {
+        "schema": "auto-dz-act.snapshot.v1",
+        "object": registry.get("object", "3I/ATLAS"),
+        "requested_day_utc": day_str,
+        "retrieved_utc": retrieved_utc,
+        "generated_at_utc": retrieved_utc,
+        "run_context": {
+            "github_repository": os.environ.get("GITHUB_REPOSITORY"),
+            "github_run_id": os.environ.get("GITHUB_RUN_ID"),
+            "github_run_number": os.environ.get("GITHUB_RUN_NUMBER"),
+            "github_workflow": os.environ.get("GITHUB_WORKFLOW"),
+            "github_sha": os.environ.get("GITHUB_SHA"),
         },
-        "platforms_registry": build_platforms_registry(),
-        "sbdb_data": sbdb["payload"] if sbdb["has_payload"] else {},
-        "sbdb_attempts": sbdb["attempts"],
-        "sbdb_error": sbdb["error"] if (not sbdb["has_payload"]) else None,
+        "sources": source_records,
     }
 
-    # Write snapshot file (timestamped)
-    snapshot_filename = f"official_snapshot_3I_ATLAS_{day_compact}_{time_compact}.json"
-    snapshot_path = SNAPSHOT_DIR / snapshot_filename
-    snapshot_bytes = json.dumps(snapshot, indent=2, ensure_ascii=False).encode("utf-8")
+    return snapshot, source_records
+
+
+def write_snapshot_and_manifest(
+    snapshot: Dict[str, Any],
+    source_records: List[Dict[str, Any]],
+    day_str: str,
+    overwrite: bool = False
+) -> Tuple[Path, Path]:
+    snapshot_path = SNAPSHOT_DIR / f"snapshot_{day_str}.json"
+    manifest_path = MANIFEST_DIR / f"manifest_{day_str}.json"
+
+    if (not overwrite) and (snapshot_path.exists() or manifest_path.exists()):
+        raise FileExistsError(f"Files already exist for {day_str}. Use --overwrite to replace.")
+
+    snapshot_bytes = json.dumps(snapshot, ensure_ascii=False, indent=2).encode("utf-8")
+    snapshot_sha = sha256_bytes(snapshot_bytes)
     snapshot_path.write_bytes(snapshot_bytes)
 
-    # Manifest (checksums + provenance)
-    manifest = {
+    # Build manifest with per-source hashes already included in snapshot
+    retrieved_utc = snapshot.get("retrieved_utc") or iso_utc_now()
+    manifest: Dict[str, Any] = {
         "schema": "auto-dz-act.manifest.v1",
-        "generated_at_utc": timestamp,
-        "files": [
+        "generated_at_utc": retrieved_utc,
+        "requested_day_utc": day_str,
+        "snapshot_file": snapshot_path.name,
+        "snapshot_sha256": snapshot_sha,
+        "sources_index": [
             {
-                "path": str(snapshot_path.relative_to(ROOT)).replace("\\", "/"),
-                "sha256": sha256_file(snapshot_path),
-                "bytes": snapshot_path.stat().st_size,
+                "name": r.get("name"),
+                "url": r.get("url"),
+                "ok": r.get("ok"),
+                "status": r.get("status"),
+                "sha256": r.get("sha256"),
+                "bytes_len": r.get("bytes_len"),
+                "retrieved_utc": r.get("retrieved_utc"),
             }
+            for r in source_records
         ],
         "integrity": {
             "generated_automatically": True,
             "no_interpretation_applied": True,
-            "raw_only": True,
+            "raw_payloads_may_be_truncated": True,
         },
     }
 
-    manifest_filename = f"manifest_{day_compact}_{time_compact}.json"
-    manifest_path = MANIFEST_DIR / manifest_filename
-    manifest_bytes = json.dumps(manifest, indent=2, ensure_ascii=False).encode("utf-8")
+    manifest_bytes = json.dumps(manifest, ensure_ascii=False, indent=2).encode("utf-8")
     manifest_path.write_bytes(manifest_bytes)
 
-    print(f"Snapshot written: {snapshot_path}")
-    print(f"Manifest written: {manifest_path}")
+    return snapshot_path, manifest_path
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="trizel_monitor.py",
+        description="AUTO-DZ-ACT TRIZEL Monitor: daily snapshot + backfill mode."
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["daily", "backfill"],
+        default="daily",
+        help="Run mode: daily (default) or backfill."
+    )
+    parser.add_argument("--start", dest="start_date", help="Backfill start date YYYY-MM-DD (required for backfill).")
+    parser.add_argument("--end", dest="end_date", help="Backfill end date YYYY-MM-DD (required for backfill).")
+    parser.add_argument("--overwrite", action="store_true", help="Overwrite existing snapshot/manifest files.")
+    parser.add_argument(
+        "--limit-per-run",
+        type=int,
+        default=0,
+        help="Optional cap on number of days processed in backfill (0 = no limit)."
+    )
+    args = parser.parse_args(argv)
+
+    ensure_dirs()
+    registry = load_registry()
+
+    if args.mode == "daily":
+        today = datetime.now(timezone.utc).date()
+        day_str = today.strftime("%Y-%m-%d")
+
+        snapshot, source_records = build_snapshot_for_day(registry, today)
+        snapshot_path, manifest_path = write_snapshot_and_manifest(
+            snapshot, source_records, day_str, overwrite=args.overwrite
+        )
+
+        print(f"OK daily: {day_str}")
+        print(f"Snapshot written: {snapshot_path}")
+        print(f"Manifest written: {manifest_path}")
+        return 0
+
+    # backfill
+    if not args.start_date or not args.end_date:
+        print("ERROR: backfill requires --start YYYY-MM-DD and --end YYYY-MM-DD", file=sys.stderr)
+        return 2
+
+    start = parse_yyyy_mm_dd(args.start_date)
+    end = parse_yyyy_mm_dd(args.end_date)
+    days = iter_days(start, end)
+
+    if args.limit_per_run and args.limit_per_run > 0:
+        days = days[:args.limit_per_run]
+
+    ok_days = 0
+    skipped_days = 0
+    failed_days: List[str] = []
+
+    for d in days:
+        day_str = d.strftime("%Y-%m-%d")
+        try:
+            snapshot, source_records = build_snapshot_for_day(registry, d)
+            write_snapshot_and_manifest(snapshot, source_records, day_str, overwrite=args.overwrite)
+            ok_days += 1
+            print(f"OK backfill: {day_str}")
+        except FileExistsError as e:
+            skipped_days += 1
+            print(f"SKIP backfill: {day_str} ({e})")
+        except Exception as e:
+            failed_days.append(day_str)
+            print(f"FAIL backfill: {day_str} ({e})", file=sys.stderr)
+
+    print("----- Backfill summary -----")
+    print(f"Processed days: {len(days)}")
+    print(f"OK: {ok_days}")
+    print(f"Skipped(existing): {skipped_days}")
+    print(f"Failed: {len(failed_days)}")
+    if failed_days:
+        print("Failed days:", ", ".join(failed_days))
+
+    # Exit non-zero if any failures occurred
+    return 1 if failed_days else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
