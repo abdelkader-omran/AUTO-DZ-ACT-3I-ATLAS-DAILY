@@ -2,6 +2,19 @@ name: TRIZEL Monitor – Daily Snapshot
 
 on:
   workflow_dispatch:
+    inputs:
+      start_date:
+        description: "Backfill start date (YYYY-MM-DD). Leave empty to run only today."
+        required: false
+        default: ""
+      end_date:
+        description: "Backfill end date (YYYY-MM-DD). Leave empty to use start_date (or today if both empty)."
+        required: false
+        default: ""
+      overwrite:
+        description: "Overwrite existing snapshot/manifest files (true/false)."
+        required: false
+        default: "false"
   schedule:
     - cron: "15 3 * * *"   # Daily at 03:15 UTC
 
@@ -21,12 +34,36 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Run TRIZEL monitor
+      - name: Run TRIZEL monitor (daily or backfill)
+        shell: bash
         run: |
-          python scripts/trizel_monitor.py
+          set -euo pipefail
+
+          START_DATE="${{ github.event.inputs.start_date }}"
+          END_DATE="${{ github.event.inputs.end_date }}"
+          OVERWRITE="${{ github.event.inputs.overwrite }}"
+
+          CMD=(python scripts/trizel_monitor.py)
+
+          if [[ -n "${START_DATE}" ]]; then
+            CMD+=(--start-date "${START_DATE}")
+          fi
+
+          if [[ -n "${END_DATE}" ]]; then
+            CMD+=(--end-date "${END_DATE}")
+          fi
+
+          if [[ "${OVERWRITE}" == "true" ]]; then
+            CMD+=(--overwrite)
+          fi
+
+          echo "Running: ${CMD[*]}"
+          "${CMD[@]}"
 
       - name: Commit generated snapshot and manifest
+        shell: bash
         run: |
+          set -euo pipefail
           git config user.name "trizel-monitor[bot]"
           git config user.email "trizel-monitor[bot]@users.noreply.github.com"
           git add data/snapshots data/manifests || true
@@ -36,7 +73,10 @@ jobs:
       - name: Create GitHub Release with assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
+          set -euo pipefail
+
           DAY=$(date -u +%F)
           TAG="snapshot-$DAY"
           TITLE="Daily Official Scientific Data Snapshot ($DAY)"
