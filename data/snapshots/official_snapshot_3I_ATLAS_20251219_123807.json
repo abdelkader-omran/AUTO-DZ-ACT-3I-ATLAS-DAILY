@@ -1,0 +1,150 @@
+{
+  "metadata": {
+    "project": "TRIZEL Monitor",
+    "pipeline": "Daily Official Data Monitor",
+    "query_designation": "3I/ATLAS",
+    "resolved_designation": null,
+    "retrieved_utc": "2025-12-19T12:38:07.375078Z",
+    "sources": {
+      "sbdb": "https://ssd-api.jpl.nasa.gov/sbdb.api",
+      "note": "SBDB is used as an official orbit/phys snapshot endpoint in this acquisition step."
+    },
+    "integrity": {
+      "has_sbdb_payload": false,
+      "has_error": true
+    }
+  },
+  "platforms_registry": {
+    "intent": "Evidence & archive targets (official platforms). Not all are machine-fetchable via API.",
+    "categories": {
+      "authoritative_orbit_and_astrometry": [
+        {
+          "name": "Minor Planet Center (MPC)",
+          "role": "IAU clearinghouse for astrometry/orbits",
+          "type": "registry"
+        },
+        {
+          "name": "NASA/JPL SSD SBDB",
+          "role": "public small-body database API",
+          "type": "api"
+        },
+        {
+          "name": "NASA/JPL Horizons",
+          "role": "ephemerides / vectors / observer geometry",
+          "type": "service"
+        }
+      ],
+      "major_space_agencies_and_missions": [
+        {
+          "name": "ESA",
+          "role": "missions + archives",
+          "type": "agency"
+        },
+        {
+          "name": "ESO",
+          "role": "ground-based observatory archives",
+          "type": "observatory"
+        },
+        {
+          "name": "JAXA",
+          "role": "missions + archives",
+          "type": "agency"
+        },
+        {
+          "name": "CNSA",
+          "role": "missions/announcements; data varies",
+          "type": "agency"
+        },
+        {
+          "name": "NASA",
+          "role": "missions + archives",
+          "type": "agency"
+        }
+      ],
+      "space_and_ground_archives": [
+        {
+          "name": "MAST (HST/JWST)",
+          "role": "space telescope archive",
+          "type": "archive"
+        },
+        {
+          "name": "ESO Science Archive",
+          "role": "ESO observational archive",
+          "type": "archive"
+        },
+        {
+          "name": "HEASARC",
+          "role": "high-energy mission archive gateway",
+          "type": "archive"
+        },
+        {
+          "name": "XMM-Newton Science Archive (XSA)",
+          "role": "XMM data archive (ESA)",
+          "type": "archive"
+        }
+      ]
+    },
+    "policy": {
+      "verification_first": "Every claim should cite a primary dataset record (ObsID/DOI/solution id).",
+      "no_unverifiable_claims": "Platforms without public DOI/ObsID/product are tracked as 'media-only' until operationalized."
+    }
+  },
+  "sbdb_data": {},
+  "sbdb_attempts": [
+    {
+      "designation": "3I/ATLAS",
+      "ok": false,
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3I/ATLAS&orb=1&phys-par=1",
+      "error": {
+        "type": "http_error",
+        "http_status": 400,
+        "message": "HTTP Error 400: Bad Request",
+        "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3I/ATLAS&orb=1&phys-par=1",
+        "body_preview": "{\"moreInfo\":\"https://ssd-api.jpl.nasa.gov/doc/sbdb.html\",\"message\":\"one or more query parameter was not recognized\",\"code\":\"400\"}\n"
+      }
+    },
+    {
+      "designation": "C/2025 N1",
+      "ok": false,
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=C/2025+N1&orb=1&phys-par=1",
+      "error": {
+        "type": "http_error",
+        "http_status": 400,
+        "message": "HTTP Error 400: Bad Request",
+        "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=C/2025+N1&orb=1&phys-par=1",
+        "body_preview": "{\"code\":\"400\",\"moreInfo\":\"https://ssd-api.jpl.nasa.gov/doc/sbdb.html\",\"message\":\"one or more query parameter was not recognized\"}\n"
+      }
+    },
+    {
+      "designation": "ATLAS",
+      "ok": false,
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=ATLAS&orb=1&phys-par=1",
+      "error": {
+        "type": "http_error",
+        "http_status": 400,
+        "message": "HTTP Error 400: Bad Request",
+        "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=ATLAS&orb=1&phys-par=1",
+        "body_preview": "{\"moreInfo\":\"https://ssd-api.jpl.nasa.gov/doc/sbdb.html\",\"code\":\"400\",\"message\":\"one or more query parameter was not recognized\"}\n"
+      }
+    },
+    {
+      "designation": "C/2025 N1 (ATLAS)",
+      "ok": false,
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=C/2025+N1+(ATLAS)&orb=1&phys-par=1",
+      "error": {
+        "type": "http_error",
+        "http_status": 400,
+        "message": "HTTP Error 400: Bad Request",
+        "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=C/2025+N1+(ATLAS)&orb=1&phys-par=1",
+        "body_preview": "{\"code\":\"400\",\"message\":\"one more more unexpected characters detected\",\"moreInfo\":\"https://ssd-api.jpl.nasa.gov/doc/sbdb.html\"}\n"
+      }
+    }
+  ],
+  "sbdb_error": {
+    "type": "http_error",
+    "http_status": 400,
+    "message": "HTTP Error 400: Bad Request",
+    "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=C/2025+N1+(ATLAS)&orb=1&phys-par=1",
+    "body_preview": "{\"code\":\"400\",\"message\":\"one more more unexpected characters detected\",\"moreInfo\":\"https://ssd-api.jpl.nasa.gov/doc/sbdb.html\"}\n"
+  }
+}
