@@ -1,4 +1,4 @@
- name: TRIZEL Monitor – Daily Snapshot
+name: TRIZEL Monitor – Daily Snapshot
 
 on:
   workflow_dispatch:
@@ -6,15 +6,16 @@ on:
       start_date:
         description: "Backfill start date (YYYY-MM-DD). Leave empty to run only today."
         required: false
-        default: ""
+        type: string
       end_date:
         description: "Backfill end date (YYYY-MM-DD). Leave empty to use start_date (or today if both empty)."
         required: false
-        default: ""
+        type: string
       overwrite:
         description: "Overwrite existing snapshot/manifest files (true/false)."
         required: false
         default: "false"
+        type: string
 
   schedule:
     - cron: "15 3 * * *"   # Daily at 03:15 UTC
@@ -42,15 +43,15 @@ jobs:
 
           CMD="python scripts/trizel_monitor.py"
 
-          if [ -n "${{ github.event.inputs.start_date }}" ]; then
-            CMD="$CMD --start-date ${{ github.event.inputs.start_date }}"
+          if [[ -n "${{ inputs.start_date || '' }}" ]]; then
+            CMD="$CMD --start-date ${{ inputs.start_date }}"
           fi
 
-          if [ -n "${{ github.event.inputs.end_date }}" ]; then
-            CMD="$CMD --end-date ${{ github.event.inputs.end_date }}"
+          if [[ -n "${{ inputs.end_date || '' }}" ]]; then
+            CMD="$CMD --end-date ${{ inputs.end_date }}"
           fi
 
-          if [ "${{ github.event.inputs.overwrite }}" = "true" ]; then
+          if [[ "${{ inputs.overwrite }}" == "true" ]]; then
             CMD="$CMD --overwrite"
           fi
 
@@ -62,7 +63,7 @@ jobs:
           git config user.name "trizel-monitor[bot]"
           git config user.email "trizel-monitor[bot]@users.noreply.github.com"
           git add data/snapshots data/manifests || true
-          git commit -m "Snapshot archive $(date -u +%F)" || echo "Nothing to commit"
+          git commit -m "TRIZEL snapshot $(date -u +%F)" || echo "Nothing to commit"
           git push
 
       - name: Create GitHub Release with assets
