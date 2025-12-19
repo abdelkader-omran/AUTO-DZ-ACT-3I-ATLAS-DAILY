@@ -1,4 +1,4 @@
-name: TRIZEL Monitor – Daily Snapshot
+name: TRIZEL Monitor - Daily Snapshot
 
 on:
   workflow_dispatch:
@@ -6,19 +6,18 @@ on:
       start_date:
         description: "Backfill start date (YYYY-MM-DD). Leave empty to run only today."
         required: false
-        type: string
+        default: ""
       end_date:
         description: "Backfill end date (YYYY-MM-DD). Leave empty to use start_date (or today if both empty)."
         required: false
-        type: string
+        default: ""
       overwrite:
         description: "Overwrite existing snapshot/manifest files (true/false)."
         required: false
         default: "false"
-        type: string
 
   schedule:
-    - cron: "15 3 * * *"   # Daily at 03:15 UTC
+    - cron: "15 3 * * *"  # Daily at 03:15 UTC
 
 permissions:
   contents: write
@@ -26,7 +25,6 @@ permissions:
 jobs:
   snapshot:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,20 +36,24 @@ jobs:
 
       - name: Run TRIZEL monitor (daily or backfill)
         shell: bash
+        env:
+          START_DATE: ${{ github.event.inputs.start_date }}
+          END_DATE: ${{ github.event.inputs.end_date }}
+          OVERWRITE: ${{ github.event.inputs.overwrite }}
         run: |
           set -euo pipefail
 
           CMD="python scripts/trizel_monitor.py"
 
-          if [[ -n "${{ inputs.start_date || '' }}" ]]; then
-            CMD="$CMD --start-date ${{ inputs.start_date }}"
+          if [[ -n "${START_DATE:-}" ]]; then
+            CMD="$CMD --start-date ${START_DATE}"
           fi
 
-          if [[ -n "${{ inputs.end_date || '' }}" ]]; then
-            CMD="$CMD --end-date ${{ inputs.end_date }}"
+          if [[ -n "${END_DATE:-}" ]]; then
+            CMD="$CMD --end-date ${END_DATE}"
           fi
 
-          if [[ "${{ inputs.overwrite }}" == "true" ]]; then
+          if [[ "${OVERWRITE:-false}" == "true" ]]; then
             CMD="$CMD --overwrite"
           fi
 
