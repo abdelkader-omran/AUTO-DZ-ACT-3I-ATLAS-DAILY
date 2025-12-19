@@ -1,9 +1,9 @@
 {
   "schema": "auto-dz-act.manifest.v1",
   "requested_day_utc": "2025-10-16",
-  "generated_at_utc": "2025-12-19T18:29:17.957406Z",
+  "generated_at_utc": "2025-12-19T19:36:51.559541Z",
   "snapshot_file": "snapshot_2025-10-16.json",
-  "snapshot_sha256": "26369bbd5ef519721ac382f44c4eecdf588b761c4f8a59334920c3fc2b8368d8",
+  "snapshot_sha256": "36e5d90ff8ef74227c76279b9a9fcced1071f99bb7f504f3d8004a9261d4d1d2",
   "integrity": {
     "generated_automatically": true,
     "no_interpretation_applied": true
