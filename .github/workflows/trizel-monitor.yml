@@ -1,1 +1,26 @@
-# placeholder
+name: TRIZEL Monitor – Daily Snapshot
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 3 * * *"   # Daily at 03:15 UTC
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run TRIZEL monitor
+        run: |
+          python scripts/trizel_monitor.py
