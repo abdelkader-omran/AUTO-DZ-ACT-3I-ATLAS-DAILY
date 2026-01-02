@@ -51,7 +51,8 @@ For each requested UTC day:
 
 All historical snapshots were **fully rebuilt after official source activation**
 to eliminate pre-activation artifacts and ensure scientific validity.
-
+Raw source responses are collected and stored locally or archived externally.
+The GitHub repository publishes normalized snapshots and cryptographic manifests.
 ---
 
 ## Repository Structure
