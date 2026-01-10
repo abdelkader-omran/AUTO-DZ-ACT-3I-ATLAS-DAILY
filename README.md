@@ -1,38 +1,70 @@
----
+🔗 Research Program Context (Final Scientific Declaration)
 
-## 🔗 Research Program Context
+AUTO-DZ-ACT is an established scientific execution framework, formally archived through multiple canonical Zenodo records and referenced across peer-accessible research outputs.
 
-**AUTO-DZ-ACT is an ESTABLISHED scientific execution framework** with multiple archived Zenodo records.
+This repository represents a finalized execution-level extension of the existing AUTO-DZ-ACT research program. It does not constitute an initial publication, a novel methodological proposal, nor a redefinition or expansion of the AUTO-DZ-ACT framework.
 
-This repository extends an existing, peer-referenced AUTO-DZ-ACT research program and does **not** represent an initial publication or a new framework proposal.
+The scientific scope of this repository is strictly limited to execution and observation, providing updated daily observational timelines, datasets, and figures related to 3I/ATLAS, under formally declared structural constraints.
 
-### Prior Canonical Zenodo Archives
+⸻
 
-The AUTO-DZ-ACT framework has been developed through multiple archived research outputs:
+Canonical Zenodo Record Lineage
 
-1. https://doi.org/10.5281/zenodo.18204071  
-2. https://doi.org/10.5281/zenodo.18134257  
-3. https://doi.org/10.5281/zenodo.18117231  
-4. https://doi.org/10.5281/zenodo.18012859  
-5. https://doi.org/10.5281/zenodo.17968772  
+The AUTO-DZ-ACT framework has been previously established and archived through the following canonical Zenodo records, which collectively define the authoritative framework baseline:
+	1.	https://doi.org/10.5281/zenodo.18204071
+	2.	https://doi.org/10.5281/zenodo.18134257
+	3.	https://doi.org/10.5281/zenodo.18117231
+	4.	https://doi.org/10.5281/zenodo.18012859
+	5.	https://doi.org/10.5281/zenodo.17968772
 
-### Current Repository Role
+These records constitute the foundational and citable corpus of the AUTO-DZ-ACT framework.
+No novelty claim, theoretical priority claim, or framework alteration is made in the present repository.
 
-- Updated execution + daily observational extension
-- No redefinition of AUTO-DZ-ACT framework
-- Execution layer only under **TRIZEL-BASELINE-v1.0.0**
+⸻
 
-### Framework vs Execution
+Role of the Present Repository
 
-- **Framework (Established):** AUTO-DZ-ACT epistemic state model (0/0, D0/DZ, DZ, ∞/∞)
-- **Execution (Current Work):** Daily observational timeline analysis and updated figures
+The role of this repository is explicitly and exclusively execution-level, defined as follows:
+	•	Delivery of updated execution outputs and daily observational extensions
+	•	Reproducible observational timelines, datasets, and figures
+	•	No modification, reinterpretation, or extension of the AUTO-DZ-ACT framework
+	•	Full compliance with TRIZEL-BASELINE-v1.0.0
 
-**Mandatory Assertion**
+This repository functions as an operational execution node, not as a framework-defining or governance-defining entity.
 
-> AUTO-DZ-ACT is an established scientific execution framework with multiple archived Zenodo records.  
-> This repository contributes updated observational execution only, under TRIZEL-BASELINE-v1.0.0.
-## ⚠️ Authority Boundary Declaration
+⸻
 
-This repository operates strictly within the **execution layer**.
-It holds **no governance authority** and **no constitutional authority**.
-All structural references follow TRIZEL-BASELINE-v1.0.0.
+Framework vs. Execution — Formal Distinction
+	•	Framework (Established):
+AUTO-DZ-ACT epistemic state model
+(0/0, D0/DZ, DZ, ∞/∞)
+— fully defined and archived in prior Zenodo records.
+	•	Execution (Current Work):
+Daily observational timeline analysis, execution-level datasets, and updated analytical figures for 3I/ATLAS.
+
+⸻
+
+Mandatory Scientific Assertion (Final)
+
+AUTO-DZ-ACT is an established scientific execution framework supported by multiple archived Zenodo records.
+This repository contributes execution-level observational updates only, operating under TRIZEL-BASELINE-v1.0.0.
+
+⸻
+
+⚠️ Authority Boundary Declaration (Final)
+
+This repository operates strictly within the execution layer.
+	•	It holds no governance authority
+	•	It holds no constitutional or epistemic authority
+	•	It defines no scientific theory, no epistemic law, and no framework novelty
+	•	It makes no claims of foundational, classificatory, or authoritative primacy
+
+All structural, organizational, and methodological references explicitly conform to TRIZEL-BASELINE-v1.0.0.
+
+⸻
+
+Status: FINAL
+Layer: EXECUTION ONLY
+Framework: AUTO-DZ-ACT (Established)
+Baseline: TRIZEL-BASELINE-v1.0.0
+Scientific Role: Observational execution and archival continuity
