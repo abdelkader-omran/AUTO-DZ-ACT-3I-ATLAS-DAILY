@@ -1,0 +1,27 @@
+{
+  "upload_type": "dataset",
+  "title": "AUTO-DZ-ACT — 3I/ATLAS Daily Observational Execution Extension (Established Framework)",
+  "description": "Execution-layer observational update for the established AUTO-DZ-ACT research program. This repository provides updated daily observational timeline analysis for 3I/ATLAS and does NOT represent framework novelty or initial publication. AUTO-DZ-ACT is an established scientific execution framework with prior peer-referenced Zenodo archives. References TRIZEL-BASELINE-v1.0.0 and governance authority trizel-core @ Governance-v1.0.0. Execution layer only.",
+  "creators": [
+    {
+      "name": "Omran, Abdelkader",
+      "affiliation": "Independent Researcher"
+    }
+  ],
+  "keywords": [
+    "3I/ATLAS",
+    "AUTO-DZ-ACT",
+    "TRIZEL",
+    "observational astronomy",
+    "epistemic state transitions",
+    "execution layer"
+  ],
+  "license": "CC-BY-4.0",
+  "related_identifiers": [
+    { "identifier": "10.5281/zenodo.18204071", "relation": "isSupplementTo", "scheme": "doi" },
+    { "identifier": "10.5281/zenodo.18134257", "relation": "isSupplementTo", "scheme": "doi" },
+    { "identifier": "10.5281/zenodo.18117231", "relation": "isSupplementTo", "scheme": "doi" },
+    { "identifier": "10.5281/zenodo.18012859", "relation": "isSupplementTo", "scheme": "doi" },
+    { "identifier": "10.5281/zenodo.17968772", "relation": "isSupplementTo", "scheme": "doi" }
+  ]
+}
