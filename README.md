@@ -63,8 +63,24 @@ All structural, organizational, and methodological references explicitly conform
 
 ⸻
 
+## AUTO DZ ACT — Definition Pack
+
+This repository includes the **AUTO DZ ACT Definition Pack v1.0.0**, a formal, evidence-linked definition of the AUTO DZ ACT framework suitable as a stable independent publication.
+
+### Documentation
+
+- **[DEFINITION.md](docs/AUTO_DZ_ACT/DEFINITION.md)**: Formal definition of AUTO DZ ACT, including the four-state epistemic model (0/0, D0/DZ, DZ, ∞/∞), scope boundaries, and governance constraints
+- **[MATHEMATICAL_LOGIC.md](docs/AUTO_DZ_ACT/MATHEMATICAL_LOGIC.md)**: Mathematical formalization with state space definitions, transition functions, evidence structures, algorithms, and validation logic
+- **[BIBLIOGRAPHY.md](docs/AUTO_DZ_ACT/BIBLIOGRAPHY.md)**: Curated bibliography of all Zenodo archives, repository sources, and external authorities
+- **[PROVENANCE_TABLE.md](docs/AUTO_DZ_ACT/PROVENANCE_TABLE.md)**: Complete provenance audit trail with traceable pointers for every cited source
+
+**Definition Principle:** All statements are evidence-linked to repository files (with commit hashes) or Zenodo DOIs. No theory claims, no interpretive physics assertions, purely algorithmic and methodological documentation.
+
+⸻
+
 Status: FINAL
 Layer: EXECUTION ONLY
 Framework: AUTO-DZ-ACT (Established)
 Baseline: TRIZEL-BASELINE-v1.0.0
 Scientific Role: Observational execution and archival continuity
+Definition Pack: v1.0.0 (Stable, Evidence-Linked)

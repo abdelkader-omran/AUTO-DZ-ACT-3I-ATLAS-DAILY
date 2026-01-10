@@ -1,7 +1,9 @@
 cff-version: 1.2.0
 title: "AUTO-DZ-ACT — 3I/ATLAS Daily Observational Execution Extension"
-message: "If you use this dataset, please cite it as below."
+message: "If you use this dataset or the AUTO DZ ACT Definition Pack, please cite it as below."
 type: dataset
+version: "1.0.0"
+date-released: "2026-01-10"
 authors:
   - family-names: Omran
     given-names: Abdelkader
@@ -11,16 +13,39 @@ abstract: >
   Execution-layer observational dataset extending the established AUTO-DZ-ACT
   scientific framework. This repository provides daily observational timelines
   and figures for 3I/ATLAS under TRIZEL-BASELINE-v1.0.0 governance constraints.
+  
+  Includes AUTO DZ ACT Definition Pack v1.0.0 (docs/AUTO_DZ_ACT/): formal
+  definition, mathematical logic, bibliography, and complete provenance table
+  with evidence-linked documentation.
 keywords:
   - AUTO-DZ-ACT
   - 3I/ATLAS
   - observational astronomy
   - execution layer
   - epistemic state transitions
+  - definition pack
+  - mathematical formalization
+  - evidence-based documentation
 license: CC-BY-4.0
 references:
   - doi: 10.5281/zenodo.18204071
+    type: dataset
+    scope: "AUTO-DZ-ACT framework foundation"
   - doi: 10.5281/zenodo.18134257
+    type: dataset
+    scope: "AUTO-DZ-ACT framework extension"
   - doi: 10.5281/zenodo.18117231
+    type: dataset
+    scope: "AUTO-DZ-ACT methodology"
   - doi: 10.5281/zenodo.18012859
+    type: dataset
+    scope: "AUTO-DZ-ACT epistemic state model"
   - doi: 10.5281/zenodo.17968772
+    type: dataset
+    scope: "AUTO-DZ-ACT initial framework"
+  - doi: 10.5281/zenodo.16522543
+    type: dataset
+    scope: "TRIZEL AUTO DZ ACT algorithm v2.0"
+  - doi: 10.5281/zenodo.18205898
+    type: dataset
+    scope: "AUTO-DZ-ACT execution archive reference"
