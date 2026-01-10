@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "AUTO-DZ-ACT — 3I/ATLAS Daily Observational Execution Extension"
+message: "If you use this dataset, please cite it as below."
+type: dataset
+authors:
+  - family-names: Omran
+    given-names: Abdelkader
+    affiliation: Independent Researcher
+repository-code: https://github.com/abdelkader-omran/AUTO-DZ-ACT-3I-ATLAS-DAILY
+abstract: >
+  Execution-layer observational dataset extending the established AUTO-DZ-ACT
+  scientific framework. This repository provides daily observational timelines
+  and figures for 3I/ATLAS under TRIZEL-BASELINE-v1.0.0 governance constraints.
+keywords:
+  - AUTO-DZ-ACT
+  - 3I/ATLAS
+  - observational astronomy
+  - execution layer
+  - epistemic state transitions
+license: CC-BY-4.0
+references:
+  - doi: 10.5281/zenodo.18204071
+  - doi: 10.5281/zenodo.18134257
+  - doi: 10.5281/zenodo.18117231
+  - doi: 10.5281/zenodo.18012859
+  - doi: 10.5281/zenodo.17968772
