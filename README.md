@@ -1,86 +1,33 @@
-# AUTO-DZ-ACT-3I-ATLAS-DAILY
-
-Daily automated monitor of officially activated international data sources
-(MPC / NASA / JPL / ESA) for the interstellar object **3I/ATLAS**.
-
-This repository produces **verifiable daily snapshots**, **cryptographic manifests**,
-and **raw-source archives** in compliance with international scientific standards,
-ensuring long-term traceability and reproducibility.
-
 ---
 
-## Data Provenance and International Activation
+## 🔗 Research Program Context
 
-As of **2025-12-19**, this repository operates in a fully **internationally activated**
-scientific configuration.
+**AUTO-DZ-ACT is an ESTABLISHED scientific execution framework** with multiple archived Zenodo records.
 
-All snapshots are generated exclusively from **authoritative and globally recognized
-institutions** operating under the auspices of the **International Astronomical Union (IAU)**,
-**NASA**, and the **European Space Agency (ESA)**.
+This repository extends an existing, peer-referenced AUTO-DZ-ACT research program and does **not** represent an initial publication or a new framework proposal.
 
-### Official Primary Sources
+### Prior Canonical Zenodo Archives
 
-- **IAU Minor Planet Center (MPC)**  
-  Global clearinghouse for observations, designations, and orbits of minor planets and comets.
+The AUTO-DZ-ACT framework has been developed through multiple archived research outputs:
 
-- **NASA/JPL Small-Body Database (SBDB)**  
-  High-precision orbital solutions and physical parameters derived from MPC data.
+1. https://doi.org/10.5281/zenodo.18204071  
+2. https://doi.org/10.5281/zenodo.18134257  
+3. https://doi.org/10.5281/zenodo.18117231  
+4. https://doi.org/10.5281/zenodo.18012859  
+5. https://doi.org/10.5281/zenodo.17968772  
 
-- **NASA/JPL Horizons System**  
-  Authoritative ephemerides (positions and velocities) for Solar System bodies.
+### Current Repository Role
 
-- **ESA Near-Earth Object Coordination Centre (NEOCC)**  
-  European monitoring, impact assessment, and coordination for small bodies.
+- Updated execution + daily observational extension
+- No redefinition of AUTO-DZ-ACT framework
+- Execution layer only under **TRIZEL-BASELINE-v1.0.0**
 
-- **NASA Center for Near-Earth Object Studies (CNEOS)**  
-  Close-approach analysis and impact-risk monitoring (Scout, Sentry).
+### Framework vs Execution
 
-- **NASA Planetary Data System – Small Bodies Node (PDS)**  
-  Archival mission and derived data for asteroids and comets.
+- **Framework (Established):** AUTO-DZ-ACT epistemic state model (0/0, D0/DZ, DZ, ∞/∞)
+- **Execution (Current Work):** Daily observational timeline analysis and updated figures
 
-The authoritative source registry is defined ---
+**Mandatory Assertion**
 
-## Snapshot Integrity and Scientific Policy
-
-For each requested UTC day:
-
-- Raw responses from each official source are retrieved and archived **without modification**
-- Retrieval timestamps are recorded in UTC
-- HTTP status, content type, byte length, and SHA-256 hashes are stored
-- No scientific interpretation, filtering, or model fitting is applied
-
-All historical snapshots were **fully rebuilt after official source activation**
-to eliminate pre-activation artifacts and ensure scientific validity.
-Raw source responses are collected and stored locally or archived externally.
-The GitHub repository publishes normalized snapshots and cryptographic manifests.
----
-
-## Repository Structure
-data/
-├─ snapshots/   # Daily normalized snapshot JSON files
-├─ manifests/   # Cryptographic manifests (SHA-256 integrity)
-└─ raw/         # Archived raw source responses (HTML / data)
-registry/
-└─ sources.json # Official international source registry
-scripts/
-└─ trizel_monitor.py
----
-
-## Scientific Scope
-
-This repository provides a **traceable, reproducible, and citation-ready**
-record of official observational and reference data related to **3I/ATLAS**.
-
-It is designed for:
-- International scientific research
-- Independent verification
-- Long-term archival use
-- DOI-based publication workflows
-
----
-This repository constitutes the authoritative data layer for AUTO DZ ACT verification states. The TRIZEL Monitor is used solely as an automation tool and is not required for independent verification.
-
-## License
-
-This project is released under an open scientific data license.
-Raw source data remain the property of their respective institutions.
+> AUTO-DZ-ACT is an established scientific execution framework with multiple archived Zenodo records.  
+> This repository contributes updated observational execution only, under TRIZEL-BASELINE-v1.0.0.
