@@ -31,3 +31,8 @@ The AUTO-DZ-ACT framework has been developed through multiple archived research 
 
 > AUTO-DZ-ACT is an established scientific execution framework with multiple archived Zenodo records.  
 > This repository contributes updated observational execution only, under TRIZEL-BASELINE-v1.0.0.
+## ⚠️ Authority Boundary Declaration
+
+This repository operates strictly within the **execution layer**.
+It holds **no governance authority** and **no constitutional authority**.
+All structural references follow TRIZEL-BASELINE-v1.0.0.
