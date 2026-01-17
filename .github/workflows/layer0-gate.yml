@@ -1,0 +1,44 @@
+name: Layer-0 Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  layer0-gate:
+    runs-on: ubuntu-latest
+    name: "Layer-0 Gate / Verify Layer-0 reference"
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Verify Layer-0 reference in README
+        run: |
+          set -euo pipefail
+          
+          echo "Checking README.md for Layer-0 governance reference..."
+          
+          if ! [ -f "README.md" ]; then
+            echo "❌ ERROR: README.md not found"
+            exit 1
+          fi
+          
+          # Check for trizel-core repository reference (github.com link)
+          if grep -E "github\.com/[^/]+/trizel-core" README.md > /dev/null; then
+            echo "✓ Layer-0 reference found: trizel-core repository"
+            echo "✓ Repository correctly references Layer-0 governance root of truth"
+            exit 0
+          else
+            echo "❌ ERROR: README.md must contain a reference to the Layer-0 governance repository"
+            echo ""
+            echo "   Expected: A GitHub link to a trizel-core repository"
+            echo "   Example: https://github.com/<owner>/trizel-core"
+            echo ""
+            echo "   This Layer-2 execution repository must explicitly reference"
+            echo "   its Layer-0 governance root of truth in the README.md file."
+            exit 1
+          fi
