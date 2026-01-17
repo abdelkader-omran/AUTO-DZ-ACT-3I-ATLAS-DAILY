@@ -27,7 +27,7 @@
 
 ### 3. Layer-0 Reference Verification
 
-- **Location:** `README.md` line 24
+- **Location:** `README.md` (Layer 0 Governance section)
 - **Reference:** `https://github.com/abdelkader-omran/trizel-core`
 - **Type:** Layer 0 Governance root of truth
 - **Verification:** Automated check via GitHub Actions on every pull request
@@ -106,7 +106,7 @@ This repository is now compliant with TRIZEL Cross-Repository Governance framewo
 - **Layer-0 Repository:** https://github.com/abdelkader-omran/trizel-core
 - **Governance Documentation:** `docs/GOVERNANCE_REFERENCE.md`
 - **Validation Workflow:** `.github/workflows/layer0-gate.yml`
-- **PR #13:** Merge commit `b949d65`
+- **PR #13:** Merge commit `b949d65e8d80a39284d0db618cc41619a50497c2`
 
 ---
 
