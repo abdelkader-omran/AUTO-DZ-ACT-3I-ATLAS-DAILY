@@ -23,3 +23,6 @@ Generated artifacts are stored in:
 This repository operates under external governance and definitions:
 - **Layer 0 Governance:** [trizel-core repository](https://github.com/abdelkader-omran/trizel-core)
 - **Layer 1 Definitions:** [AUTO-DZ-ACT-FRAMEWORK repository](https://github.com/abdelkader-omran/AUTO-DZ-ACT-FRAMEWORK)
+
+**Governance Status:** ✅ Layer-2 → Layer-0 linkage established and validated  
+See [Governance Proof](docs/GOVERNANCE_PROOF_LAYER2_TO_LAYER0.md) for details.
