@@ -1,0 +1,18 @@
+{
+  "repo_name": "AUTO-DZ-ACT-3I-ATLAS-DAILY",
+  "layer": "Layer-1",
+  "role": "raw_observatory_archive",
+  "domain_scope": "cosmic_phenomena",
+  "phenomena_supported": ["ATLAS"],
+  "temporal_coverage": {
+    "type": "daily_snapshots"
+  },
+  "data_nature": "raw_declared_observations",
+  "analysis_performed": false,
+  "execution_performed": false,
+  "sources_type": "official_observational_sources",
+  "governance": {
+    "authority": "trizel-core",
+    "execution_policy": "no_analysis_no_inference"
+  }
+}
