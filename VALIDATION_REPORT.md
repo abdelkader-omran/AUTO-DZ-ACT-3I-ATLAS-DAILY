@@ -7,6 +7,16 @@
 
 ---
 
+## Governance Scope Clarification
+
+All enforcement, prohibitions, and constraints described in this repository are normative and governance-level only.
+
+The execution engine (`scripts/trizel_monitor.py`) does not perform semantic or policy enforcement beyond its current explicit code paths.
+
+No runtime validation, rejection, or interpretation is implied unless explicitly implemented in code.
+
+---
+
 ## Executive Summary
 
 This update formalizes the existing snapshot classification logic and repositions the repository from "Layer-2 Execution" to "Layer-1 Data Collection" with **zero code modifications**. All changes are documentation-only, preserving existing behavior while preventing future semantic drift.

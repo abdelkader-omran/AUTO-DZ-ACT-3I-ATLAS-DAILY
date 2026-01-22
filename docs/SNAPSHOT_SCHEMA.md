@@ -575,6 +575,12 @@ f"Exception: {e}"
 
 ## Schema Evolution
 
+### Schema Version Semantics
+
+Schema version identifiers are declarative and descriptive only.
+
+No runtime rejection, validation failure, or execution branching is performed solely based on schema version.
+
 ### Current Version: v1
 
 **Identifier:** `auto-dz-act.snapshot.v1`
