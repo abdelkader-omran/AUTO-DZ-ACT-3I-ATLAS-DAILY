@@ -133,10 +133,11 @@ data/
 
 ```json
 {
-  "snapshot_date": "YYYY-MM-DD",      // ISO 8601 date
-  "generated_at": "ISO8601_UTC",      // Generation timestamp
-  "source_count": number,             // Total sources processed
-  "fetch_results": [                  // Array of fetch results
+  "schema": "auto-dz-act.snapshot.v1", // Schema version identifier
+  "object": "string",                  // Astronomical object (e.g., "3I/ATLAS")
+  "requested_day_utc": "YYYY-MM-DD",   // ISO 8601 date (observation date)
+  "retrieved_utc": "ISO8601_UTC",      // Generation timestamp
+  "sources": [                         // Array of fetch results
     {
       "source_id": "string",          // Matches registry ID
       "url": "string",                // URL fetched
@@ -157,18 +158,24 @@ data/
 
 #### Root Level
 
-- **snapshot_date** (string, required): Date of the snapshot in ISO 8601 format
+- **schema** (string, required): Schema version identifier
+  - Format: `"auto-dz-act.snapshot.v1"`
+  - Used for version detection and compatibility
+
+- **object** (string, required): Astronomical object identifier
+  - Format: Free-form string (typically IAU designation)
+  - Example: `"3I/ATLAS"`
+
+- **requested_day_utc** (string, required): Date of the snapshot in ISO 8601 format
   - Format: `YYYY-MM-DD`
   - Example: `"2026-01-22"`
+  - This is the observation date, NOT the processing date
 
-- **generated_at** (string, required): Timestamp when snapshot was generated
-  - Format: ISO 8601 UTC with 'Z' suffix
-  - Example: `"2026-01-22T03:15:42.123Z"`
+- **retrieved_utc** (string, required): Timestamp when snapshot was generated
+  - Format: ISO 8601 UTC with 'Z' suffix and microseconds
+  - Example: `"2026-01-22T03:15:42.123456Z"`
 
-- **source_count** (number, required): Total number of sources processed
-  - Example: `6`
-
-- **fetch_results** (array, required): List of fetch results, one per source
+- **sources** (array, required): List of fetch results, one per source
 
 #### Fetch Result Object
 
@@ -215,10 +222,11 @@ data/
 
 ```json
 {
-  "snapshot_date": "2026-01-22",
-  "generated_at": "2026-01-22T03:15:42.789Z",
-  "source_count": 2,
-  "fetch_results": [
+  "schema": "auto-dz-act.snapshot.v1",
+  "object": "3I/ATLAS",
+  "requested_day_utc": "2026-01-22",
+  "retrieved_utc": "2026-01-22T03:15:42.789Z",
+  "sources": [
     {
       "source_id": "IAU_MPC",
       "url": "https://www.minorplanetcenter.net/",
@@ -257,10 +265,12 @@ data/
 
 ```json
 {
-  "manifest_version": "string",  // Manifest schema version
-  "date": "YYYY-MM-DD",          // Snapshot date
-  "generated_at": "ISO8601_UTC", // Generation timestamp
-  "snapshot": {
+  "schema": "auto-dz-act.manifest.v1", // Manifest schema version
+  "requested_day_utc": "YYYY-MM-DD",   // Snapshot date
+  "generated_at_utc": "ISO8601_UTC",   // Generation timestamp
+  "snapshot_file": "string",           // Snapshot filename
+  "snapshot_sha256": "string",         // SHA-256 checksum
+  "integrity": {
     "path": "string",            // Relative path to snapshot
     "sha256": "string",          // SHA-256 of snapshot file
     "size_bytes": number         // File size in bytes
@@ -272,40 +282,44 @@ data/
 
 #### Root Level
 
-- **manifest_version** (string, required): Schema version for this manifest
-  - Current version: `"1.0"`
+- **schema** (string, required): Schema version for this manifest
+  - Current version: `"auto-dz-act.manifest.v1"`
 
-- **date** (string, required): Date of the associated snapshot
+- **requested_day_utc** (string, required): Date of the associated snapshot
   - Format: `YYYY-MM-DD`
   - Example: `"2026-01-22"`
 
-- **generated_at** (string, required): Timestamp when manifest was created
-  - Format: ISO 8601 UTC with 'Z' suffix
-  - Example: `"2026-01-22T03:15:43.000Z"`
+- **generated_at_utc** (string, required): Timestamp when manifest was created
+  - Format: ISO 8601 UTC with 'Z' suffix and microseconds
+  - Example: `"2026-01-22T03:15:43.123456Z"`
 
-#### Snapshot Object
+- **snapshot_file** (string, required): Filename of the snapshot
+  - Example: `"snapshot_2026-01-22.json"`
 
-- **path** (string, required): Relative path to the snapshot file
-  - Example: `"data/snapshots/snapshot_2026-01-22.json"`
-
-- **sha256** (string, required): SHA-256 checksum of the snapshot file
+- **snapshot_sha256** (string, required): SHA-256 checksum of the snapshot file
   - 64 hexadecimal characters
   - Example: `"b4e6f8d2a1c3e5..."`
 
-- **size_bytes** (number, required): Size of snapshot file in bytes
-  - Example: `8192`
+#### Integrity Object
+
+- **generated_automatically** (boolean, required): Whether manifest was auto-generated
+  - Always `true` for this system
+
+- **no_interpretation_applied** (boolean, required): Confirms no analysis was performed
+  - Always `true` for this system
 
 ### Example
 
 ```json
 {
-  "manifest_version": "1.0",
-  "date": "2026-01-22",
-  "generated_at": "2026-01-22T03:15:43.123Z",
-  "snapshot": {
-    "path": "data/snapshots/snapshot_2026-01-22.json",
-    "sha256": "b4e6f8d2a1c3e5d7f9a0b2c4e6f8d0a1b3c5e7f9a1b3c5e7f9a1b3c5e7f9a1b3",
-    "size_bytes": 8192
+  "schema": "auto-dz-act.manifest.v1",
+  "requested_day_utc": "2026-01-22",
+  "generated_at_utc": "2026-01-22T03:15:43.123456Z",
+  "snapshot_file": "snapshot_2026-01-22.json",
+  "snapshot_sha256": "b4e6f8d2a1c3e5d7f9a0b2c4e6f8d0a1b3c5e7f9a1b3c5e7f9a1b3c5e7f9a1b3",
+  "integrity": {
+    "generated_automatically": true,
+    "no_interpretation_applied": true
   }
 }
 ```

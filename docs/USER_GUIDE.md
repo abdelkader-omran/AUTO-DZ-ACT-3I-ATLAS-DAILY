@@ -174,8 +174,8 @@ See `registry/sources.json` for complete source configuration.
 This repository operates under the TRIZEL governance framework:
 
 - **Layer 0 (Governance):** [trizel-core](https://github.com/abdelkader-omran/trizel-core)
-- **Layer 1 (Definitions):** [AUTO-DZ-ACT-FRAMEWORK](https://github.com/abdelkader-omran/AUTO-DZ-ACT-FRAMEWORK)
-- **Layer 2 (Execution):** This repository
+- **Layer 1 (Data Collection):** This repository
+- **Layer 2 (Public Display):** Hypothetical/Future (GOI)
 
 See [Governance Reference](GOVERNANCE_REFERENCE.md) for details.
 

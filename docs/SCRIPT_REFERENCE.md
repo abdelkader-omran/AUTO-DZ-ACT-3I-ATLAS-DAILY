@@ -195,10 +195,11 @@ The script outputs:
 
 ```json
 {
-  "snapshot_date": "YYYY-MM-DD",
-  "generated_at": "2026-01-22T00:00:00.000Z",
-  "source_count": 6,
-  "fetch_results": [
+  "schema": "auto-dz-act.snapshot.v1",
+  "object": "3I/ATLAS",
+  "requested_day_utc": "YYYY-MM-DD",
+  "retrieved_utc": "2026-01-22T00:00:00.000Z",
+  "sources": [
     {
       "source_id": "SOURCE_ID",
       "url": "https://example.com/",
