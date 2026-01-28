@@ -26,7 +26,7 @@ Analysis will utilize data from the following sources, as collected by this repo
 
 - **IAU Minor Planet Center (MPC)** — Official orbital elements and observational data
 - **NASA JPL Horizons System** — Ephemeris and trajectory data
-- **ESA NEOCC** — Near-Earth Object Coordination Centre data
+- **ESA Near-Earth Object Coordination Centre** — NEO monitoring and impact risk assessment data
 - **Data Location:** `/data/snapshots/` and `/data/raw/` directories in this repository
 
 All data sources are official astronomical observatories and archives, consistent with the Layer-1 data collection policy defined in this repository.
