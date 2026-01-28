@@ -82,3 +82,6 @@ This repository is **Layer-1** in the TRIZEL architecture:
 - [User Guide](docs/USER_GUIDE.md) — How to use the system
 - [Script Reference](docs/SCRIPT_REFERENCE.md) — Script documentation and CLI reference
 - [Troubleshooting Guide](docs/TROUBLESHOOTING.md) — Common issues and solutions
+
+### Gates
+- [Gate 4B — Start Record (3I-ATLAS-0001)](docs/gates/GATE-4B-START-RECORD.md) — Controlled start of analysis declaration
