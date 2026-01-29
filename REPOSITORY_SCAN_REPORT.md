@@ -162,7 +162,7 @@ All files in the repository are significantly smaller than 5 MB. The 20 largest 
 - **Type:** Descriptive archival synthesis document
 - **Classification:** DERIVED ANALYSIS
 - **Content Summary:**
-  - Inventory of 213 archived snapshots
+  - Inventory of 214 archived snapshots (213 daily + 1 official reference)
   - Temporal coverage description (July 2025 - January 2026)
   - Data source enumeration
   - Collection methodology description
@@ -367,7 +367,7 @@ The following files represent **DERIVED ANALYSIS** products:
 
 **Metadata:**
 - **Title:** AUTO-DZ-ACT — 3I/ATLAS Data Collection Archival Synthesis (Gate 4B Analysis Artifact)
-- **Description:** Descriptive synthesis and inventory of 213 daily observational snapshots collected for 3I/ATLAS from July 2025 to January 2026. Documents data sources, collection methodology, temporal coverage, and archival policy. No scientific analysis or conclusions. Read-only descriptive inventory conforming to TRIZEL Gate 4B constraints.
+- **Description:** Descriptive synthesis and inventory of 214 daily observational snapshots (213 standard daily + 1 official reference) collected for 3I/ATLAS from July 2025 to January 2026. Documents data sources, collection methodology, temporal coverage, and archival policy. No scientific analysis or conclusions. Read-only descriptive inventory conforming to TRIZEL Gate 4B constraints.
 - **Upload Type:** publication
 - **Publication Type:** report
 - **Keywords:** archival synthesis, data inventory, collection methodology, 3I/ATLAS, TRIZEL Gate 4B
