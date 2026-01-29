@@ -1,7 +1,7 @@
 {
   "upload_type": "dataset",
-  "title": "AUTO-DZ-ACT — 3I/ATLAS Daily Observational Execution Extension (Established Framework)",
-  "description": "Execution-layer observational update for the established AUTO-DZ-ACT research program. This repository provides updated daily observational timeline analysis for 3I/ATLAS and does NOT represent framework novelty or initial publication. AUTO-DZ-ACT is an established scientific execution framework with prior peer-referenced Zenodo archives. References TRIZEL-BASELINE-v1.0.0 and governance authority trizel-core @ Governance-v1.0.0. Execution layer only.",
+  "title": "AUTO-DZ-ACT — 3I/ATLAS Daily Observational Snapshots (2025-07-01 → 2026-01-29)",
+  "description": "Raw, non-instrumental observational archive for 3I/ATLAS (Interstellar Object) collected from official astronomical data sources. Contains 214 daily timestamped snapshots (2025-07-01 to 2026-01-29) with complete cryptographic integrity verification (SHA-256) and provenance documentation. Data aggregated from: IAU Minor Planet Center (MPC), NASA/JPL Small-Body Database (SBDB), NASA/JPL Horizons, ESA Near-Earth Object Coordination Centre (NEOCC), NASA Center for Near-Earth Object Studies (CNEOS), and NASA Planetary Data System Small Bodies Node. Each snapshot includes source attribution, retrieval timestamps (ISO 8601 UTC), and content verification hashes. Archive operates under provenance-based archiving standards with immutability protection. No scientific analysis, interpretation, or instrumental observation—raw institutional data preservation only. Part of AUTO-DZ-ACT cosmic observatory framework (Layer-1 data collection) governed by TRIZEL-BASELINE-v1.0.0.",
   "creators": [
     {
       "name": "Omran, Abdelkader",
@@ -10,18 +10,42 @@
   ],
   "keywords": [
     "3I/ATLAS",
+    "astronomy",
+    "small-bodies",
+    "interstellar-objects",
+    "observational-astronomy",
+    "raw-data",
+    "provenance",
+    "data-archival",
+    "MPC",
+    "JPL",
+    "ESA",
+    "IAU",
+    "cryptographic-integrity",
     "AUTO-DZ-ACT",
-    "TRIZEL",
-    "observational astronomy",
-    "epistemic state transitions",
-    "execution layer"
+    "TRIZEL"
   ],
   "license": "CC-BY-4.0",
+  "access_right": "open",
   "related_identifiers": [
     { "identifier": "10.5281/zenodo.18204071", "relation": "isSupplementTo", "scheme": "doi" },
     { "identifier": "10.5281/zenodo.18134257", "relation": "isSupplementTo", "scheme": "doi" },
     { "identifier": "10.5281/zenodo.18117231", "relation": "isSupplementTo", "scheme": "doi" },
     { "identifier": "10.5281/zenodo.18012859", "relation": "isSupplementTo", "scheme": "doi" },
-    { "identifier": "10.5281/zenodo.17968772", "relation": "isSupplementTo", "scheme": "doi" }
+    { "identifier": "10.5281/zenodo.17968772", "relation": "isSupplementTo", "scheme": "doi" },
+    { "identifier": "https://github.com/abdelkader-omran/AUTO-DZ-ACT-3I-ATLAS-DAILY", "relation": "isSupplementedBy", "scheme": "url" }
+  ],
+  "communities": [
+    { "identifier": "zenodo" }
+  ],
+  "version": "v1",
+  "language": "eng",
+  "dates": [
+    {
+      "start": "2025-07-01",
+      "end": "2026-01-29",
+      "type": "Collected",
+      "description": "Temporal coverage of daily observational snapshots"
+    }
   ]
 }

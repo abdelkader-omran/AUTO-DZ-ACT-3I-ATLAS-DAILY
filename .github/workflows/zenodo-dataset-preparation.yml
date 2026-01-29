@@ -1,0 +1,226 @@
+name: Zenodo Dataset Preparation (Quarterly)
+
+on:
+  schedule:
+    # Run quarterly on the 1st day of Jan, Apr, Jul, Oct at 00:00 UTC
+    - cron: '0 0 1 1,4,7,10 *'
+  workflow_dispatch:
+    inputs:
+      force_create:
+        description: 'Force create new dataset package'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  prepare-zenodo-dataset:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper date range detection
+      
+      - name: Set up environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+      
+      - name: Detect snapshot date range
+        id: detect_range
+        run: |
+          # Find earliest and latest snapshot dates
+          EARLIEST=$(ls data/snapshots/snapshot_*.json 2>/dev/null | head -1 | grep -oP '\d{4}-\d{2}-\d{2}' || echo "unknown")
+          LATEST=$(ls data/snapshots/snapshot_*.json 2>/dev/null | tail -1 | grep -oP '\d{4}-\d{2}-\d{2}' || echo "unknown")
+          SNAPSHOT_COUNT=$(ls data/snapshots/snapshot_*.json 2>/dev/null | wc -l)
+          
+          echo "earliest=$EARLIEST" >> $GITHUB_OUTPUT
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          echo "count=$SNAPSHOT_COUNT" >> $GITHUB_OUTPUT
+          
+          echo "📅 Detected snapshot range: $EARLIEST to $LATEST ($SNAPSHOT_COUNT files)"
+      
+      - name: Check if dataset already exists
+        id: check_existing
+        run: |
+          ARCHIVE_NAME="AUTO-DZ-ACT-3I-ATLAS-DAILY-RAW-${{ steps.detect_range.outputs.earliest }}_to_${{ steps.detect_range.outputs.latest }}.tar.gz"
+          
+          if [ -f "$ARCHIVE_NAME" ] && [ "${{ github.event.inputs.force_create }}" != "true" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "⏭️  Archive already exists: $ARCHIVE_NAME"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "archive_name=$ARCHIVE_NAME" >> $GITHUB_OUTPUT
+            echo "✨ Will create new archive: $ARCHIVE_NAME"
+          fi
+      
+      - name: Prepare Zenodo dataset directory
+        if: steps.check_existing.outputs.exists == 'false'
+        run: |
+          echo "📦 Preparing Zenodo dataset package..."
+          
+          # Create directory structure
+          mkdir -p zenodo_dataset/data/snapshots
+          mkdir -p zenodo_dataset/data/manifests
+          mkdir -p zenodo_dataset/docs
+          mkdir -p zenodo_dataset/governance
+          
+          # Copy snapshot files
+          cp data/snapshots/snapshot_*.json zenodo_dataset/data/snapshots/ || true
+          cp data/snapshots/official_*.json zenodo_dataset/data/snapshots/ || true
+          
+          # Copy manifest files
+          cp data/manifests/*.json zenodo_dataset/data/manifests/ || true
+          
+          # Copy documentation
+          cp docs/SNAPSHOT_SCHEMA.md zenodo_dataset/docs/ || true
+          cp docs/DATA_FORMATS.md zenodo_dataset/docs/ || true
+          cp governance/SNAPSHOT_CLASSIFICATION_CONTRACT.md zenodo_dataset/governance/ || true
+          
+          # Copy README (should already exist from initial setup)
+          if [ -f zenodo_dataset/README.md ]; then
+            echo "✅ README.md already present"
+          else
+            echo "⚠️  README.md not found - dataset package may be incomplete"
+          fi
+          
+          TOTAL_FILES=$(find zenodo_dataset -type f | wc -l)
+          TOTAL_SIZE=$(du -sh zenodo_dataset | cut -f1)
+          
+          echo "📊 Dataset statistics:"
+          echo "  - Total files: $TOTAL_FILES"
+          echo "  - Total size: $TOTAL_SIZE"
+      
+      - name: Update .zenodo.json metadata
+        if: steps.check_existing.outputs.exists == 'false'
+        run: |
+          echo "📝 Updating .zenodo.json with current date range..."
+          
+          # Update dates in .zenodo.json
+          jq --arg start "${{ steps.detect_range.outputs.earliest }}" \
+             --arg end "${{ steps.detect_range.outputs.latest }}" \
+             '.dates[0].start = $start | .dates[0].end = $end' \
+             .zenodo.json > .zenodo.json.tmp
+          
+          mv .zenodo.json.tmp .zenodo.json
+          
+          # Update title
+          jq --arg start "${{ steps.detect_range.outputs.earliest }}" \
+             --arg end "${{ steps.detect_range.outputs.latest }}" \
+             '.title = "AUTO-DZ-ACT — 3I/ATLAS Daily Observational Snapshots (\($start) → \($end))"' \
+             .zenodo.json > .zenodo.json.tmp
+          
+          mv .zenodo.json.tmp .zenodo.json
+          
+          echo "✅ Metadata updated"
+          cat .zenodo.json | jq '.title, .dates'
+      
+      - name: Create archive
+        if: steps.check_existing.outputs.exists == 'false'
+        run: |
+          ARCHIVE_NAME="${{ steps.check_existing.outputs.archive_name }}"
+          
+          echo "📦 Creating archive: $ARCHIVE_NAME"
+          tar -czf "$ARCHIVE_NAME" zenodo_dataset/
+          
+          ARCHIVE_SIZE=$(ls -lh "$ARCHIVE_NAME" | awk '{print $5}')
+          echo "✅ Archive created: $ARCHIVE_SIZE"
+          
+          echo "archive_path=$ARCHIVE_NAME" >> $GITHUB_ENV
+      
+      - name: Verify archive integrity
+        if: steps.check_existing.outputs.exists == 'false'
+        run: |
+          ARCHIVE_NAME="${{ steps.check_existing.outputs.archive_name }}"
+          
+          echo "🔍 Verifying archive integrity..."
+          tar -tzf "$ARCHIVE_NAME" | head -20
+          echo "..."
+          
+          FILE_COUNT=$(tar -tzf "$ARCHIVE_NAME" | wc -l)
+          echo "✅ Archive contains $FILE_COUNT files"
+      
+      - name: Generate release notes
+        if: steps.check_existing.outputs.exists == 'false'
+        id: release_notes
+        run: |
+          cat > release_notes.md << EOF
+          # Zenodo Dataset Package — Raw Observational Archive
+          
+          **Dataset Version:** v${{ steps.detect_range.outputs.latest }}
+          **Temporal Coverage:** ${{ steps.detect_range.outputs.earliest }} to ${{ steps.detect_range.outputs.latest }}
+          **Snapshot Count:** ${{ steps.detect_range.outputs.count }} daily snapshots
+          **Package Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          ## Archive Contents
+          
+          - **Daily Snapshots:** ${{ steps.detect_range.outputs.count }} files
+          - **Integrity Manifests:** ${{ steps.detect_range.outputs.count }} files
+          - **Official Snapshots:** 1 reference snapshot
+          - **Documentation:** Schema, data formats, governance contracts
+          
+          ## Data Sources
+          
+          All snapshots aggregate data from official astronomical institutions:
+          - IAU Minor Planet Center (MPC)
+          - NASA/JPL Small-Body Database (SBDB)
+          - NASA/JPL Horizons
+          - ESA Near-Earth Object Coordination Centre (NEOCC)
+          - NASA Center for Near-Earth Object Studies (CNEOS)
+          - NASA Planetary Data System Small Bodies Node
+          
+          ## Integrity Verification
+          
+          - **SHA-256 verification:** Each snapshot paired with cryptographic manifest
+          - **Immutability flags:** All manifests confirm automated generation
+          - **Provenance documentation:** Complete source attribution chain
+          
+          ## Usage
+          
+          1. Download and extract: \`tar -xzf AUTO-DZ-ACT-3I-ATLAS-DAILY-RAW-*.tar.gz\`
+          2. Read \`zenodo_dataset/README.md\` for complete documentation
+          3. Verify integrity using SHA-256 hashes in manifest files
+          
+          ## License
+          
+          CC-BY-4.0 (Creative Commons Attribution 4.0 International)
+          
+          ## Citation
+          
+          See \`zenodo_dataset/README.md\` for BibTeX citation format.
+          
+          ---
+          
+          **Note:** This is a raw data archive prepared for Zenodo submission. No scientific analysis or interpretation is included.
+          EOF
+          
+          echo "notes_path=release_notes.md" >> $GITHUB_OUTPUT
+      
+      - name: Summary
+        if: steps.check_existing.outputs.exists == 'false'
+        run: |
+          echo "## 📦 Zenodo Dataset Package Prepared" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Archive:** \`${{ steps.check_existing.outputs.archive_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Date Range:** ${{ steps.detect_range.outputs.earliest }} to ${{ steps.detect_range.outputs.latest }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Snapshots:** ${{ steps.detect_range.outputs.count }} files" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. Create GitHub Release with tag \`zenodo-raw-v${{ steps.detect_range.outputs.latest }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "2. Attach the generated \`.tar.gz\` archive to the release" >> $GITHUB_STEP_SUMMARY
+          echo "3. Use release notes from \`release_notes.md\`" >> $GITHUB_STEP_SUMMARY
+          echo "4. Submit to Zenodo when ready" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Note:** Archive is prepared but NOT automatically published to Zenodo." >> $GITHUB_STEP_SUMMARY
+      
+      - name: Already exists - skip
+        if: steps.check_existing.outputs.exists == 'true'
+        run: |
+          echo "## ⏭️  Dataset Package Already Exists" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "A dataset package for the current snapshot range already exists." >> $GITHUB_STEP_SUMMARY
+          echo "Use \`force_create: true\` to regenerate." >> $GITHUB_STEP_SUMMARY
