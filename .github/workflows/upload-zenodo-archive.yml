@@ -1,0 +1,72 @@
+name: Upload Zenodo Archive Artifact
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'AUTO-DZ-ACT-3I-ATLAS-DAILY-RAW-*.tar.gz'
+
+permissions:
+  contents: read
+
+jobs:
+  upload-archive:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Regenerate archive
+        run: |
+          echo "📦 Regenerating Zenodo RAW DATA archive..."
+          
+          # Create directory structure
+          mkdir -p /tmp/zenodo_dataset/data/snapshots
+          mkdir -p /tmp/zenodo_dataset/data/manifests
+          mkdir -p /tmp/zenodo_dataset/docs
+          mkdir -p /tmp/zenodo_dataset/governance
+          
+          # Copy files preserving timestamps
+          cp -p data/snapshots/snapshot_*.json /tmp/zenodo_dataset/data/snapshots/
+          cp -p data/manifests/manifest_*.json /tmp/zenodo_dataset/data/manifests/
+          cp -p docs/SNAPSHOT_SCHEMA.md /tmp/zenodo_dataset/docs/
+          cp -p docs/DATA_FORMATS.md /tmp/zenodo_dataset/docs/
+          cp -p governance/SNAPSHOT_CLASSIFICATION_CONTRACT.md /tmp/zenodo_dataset/governance/
+          
+          # Create deterministic archive
+          tar --sort=name \
+              --mtime='2025-07-01 00:00:00' \
+              --owner=0 --group=0 --numeric-owner \
+              --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
+              -czf AUTO-DZ-ACT-3I-ATLAS-DAILY-RAW-2025-07-01_to_2026-01-29.tar.gz \
+              -C /tmp zenodo_dataset
+          
+          echo "✅ Archive created"
+          ls -lh AUTO-DZ-ACT-3I-ATLAS-DAILY-RAW-2025-07-01_to_2026-01-29.tar.gz
+          sha256sum AUTO-DZ-ACT-3I-ATLAS-DAILY-RAW-2025-07-01_to_2026-01-29.tar.gz
+      
+      - name: Upload archive as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenodo-raw-data-archive
+          path: AUTO-DZ-ACT-3I-ATLAS-DAILY-RAW-2025-07-01_to_2026-01-29.tar.gz
+          retention-days: 90
+          compression-level: 0
+      
+      - name: Summary
+        run: |
+          echo "## 📦 Zenodo Archive Uploaded" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Archive:** \`AUTO-DZ-ACT-3I-ATLAS-DAILY-RAW-2025-07-01_to_2026-01-29.tar.gz\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Size:** $(ls -lh AUTO-DZ-ACT-3I-ATLAS-DAILY-RAW-2025-07-01_to_2026-01-29.tar.gz | awk '{print $5}')" >> $GITHUB_STEP_SUMMARY
+          echo "**SHA-256:** \`$(sha256sum AUTO-DZ-ACT-3I-ATLAS-DAILY-RAW-2025-07-01_to_2026-01-29.tar.gz | awk '{print $1}')\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Download Instructions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to the **Actions** tab in this repository" >> $GITHUB_STEP_SUMMARY
+          echo "2. Click on this workflow run" >> $GITHUB_STEP_SUMMARY
+          echo "3. Scroll down to **Artifacts** section" >> $GITHUB_STEP_SUMMARY
+          echo "4. Click **zenodo-raw-data-archive** to download" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Retention:** 90 days" >> $GITHUB_STEP_SUMMARY
