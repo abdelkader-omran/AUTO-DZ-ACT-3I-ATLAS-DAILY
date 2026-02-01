@@ -1,0 +1,11 @@
+{
+  "schema": "auto-dz-act.manifest.v1",
+  "requested_day_utc": "2026-02-01",
+  "generated_at_utc": "2026-02-01T05:09:05.888368Z",
+  "snapshot_file": "snapshot_2026-02-01.json",
+  "snapshot_sha256": "c674c7a1a96621871f4dbe984ce9a8970f06a725290a9a6a03c982ca99ed4ae4",
+  "integrity": {
+    "generated_automatically": true,
+    "no_interpretation_applied": true
+  }
+}
