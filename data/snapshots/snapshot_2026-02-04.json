@@ -1,0 +1,74 @@
+{
+  "schema": "auto-dz-act.snapshot.v1",
+  "object": "3I/ATLAS",
+  "requested_day_utc": "2026-02-04",
+  "retrieved_utc": "2026-02-04T04:51:53.413063Z",
+  "sources": [
+    {
+      "id": "IAU_MPC",
+      "url": "https://www.minorplanetcenter.net/",
+      "retrieved_utc": "2026-02-04T04:51:49.119675Z",
+      "ok": true,
+      "status_code": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes_len": 18293,
+      "sha256": "70ca9eddb2ca388b45d9203a8f437a7df8f67ea3f70e3118955a5b484d55a422",
+      "raw_path": "/home/runner/work/AUTO-DZ-ACT-3I-ATLAS-DAILY/AUTO-DZ-ACT-3I-ATLAS-DAILY/data/raw/2026-02-04/IAU_MPC.html"
+    },
+    {
+      "id": "NASA_JPL_SBDB",
+      "url": "https://ssd.jpl.nasa.gov/sb/",
+      "retrieved_utc": "2026-02-04T04:51:49.709021Z",
+      "ok": true,
+      "status_code": 200,
+      "content_type": "text/html",
+      "bytes_len": 20129,
+      "sha256": "880136c3ce1acffb358a245c5c8a64d4f96cbe721b6f79cfbacef3d397795884",
+      "raw_path": "/home/runner/work/AUTO-DZ-ACT-3I-ATLAS-DAILY/AUTO-DZ-ACT-3I-ATLAS-DAILY/data/raw/2026-02-04/NASA_JPL_SBDB.html"
+    },
+    {
+      "id": "NASA_JPL_HORIZONS",
+      "url": "https://ssd.jpl.nasa.gov/horizons/",
+      "retrieved_utc": "2026-02-04T04:51:50.065278Z",
+      "ok": true,
+      "status_code": 200,
+      "content_type": "text/html",
+      "bytes_len": 23710,
+      "sha256": "3141cb27f81e3f29b2c4d953ddaed1181313346cc007e84c95236173d0989255",
+      "raw_path": "/home/runner/work/AUTO-DZ-ACT-3I-ATLAS-DAILY/AUTO-DZ-ACT-3I-ATLAS-DAILY/data/raw/2026-02-04/NASA_JPL_HORIZONS.html"
+    },
+    {
+      "id": "ESA_NEOCC",
+      "url": "https://neo.ssa.esa.int/",
+      "retrieved_utc": "2026-02-04T04:51:50.464810Z",
+      "ok": true,
+      "status_code": 200,
+      "content_type": "text/html;charset=UTF-8",
+      "bytes_len": 177791,
+      "sha256": "8c628bb8853d8d213bf077ba2897cf547e7600fe43bc0eb099f86de267ef7296",
+      "raw_path": "/home/runner/work/AUTO-DZ-ACT-3I-ATLAS-DAILY/AUTO-DZ-ACT-3I-ATLAS-DAILY/data/raw/2026-02-04/ESA_NEOCC.html"
+    },
+    {
+      "id": "NASA_CNEOS",
+      "url": "https://cneos.jpl.nasa.gov/",
+      "retrieved_utc": "2026-02-04T04:51:52.243398Z",
+      "ok": true,
+      "status_code": 200,
+      "content_type": "text/html",
+      "bytes_len": 24419,
+      "sha256": "b2b0245543a10b90a3eddc75229eb4e66ed505418e795d8d6ae9829945ec5b48",
+      "raw_path": "/home/runner/work/AUTO-DZ-ACT-3I-ATLAS-DAILY/AUTO-DZ-ACT-3I-ATLAS-DAILY/data/raw/2026-02-04/NASA_CNEOS.html"
+    },
+    {
+      "id": "NASA_PDS_SMALL_BODIES",
+      "url": "https://pds-smallbodies.astro.umd.edu/",
+      "retrieved_utc": "2026-02-04T04:51:52.720439Z",
+      "ok": true,
+      "status_code": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "bytes_len": 39581,
+      "sha256": "e119694f4cf9d4f1324b7bfccbbdce79af3a71632fbed5138e9c5016c02d869d",
+      "raw_path": "/home/runner/work/AUTO-DZ-ACT-3I-ATLAS-DAILY/AUTO-DZ-ACT-3I-ATLAS-DAILY/data/raw/2026-02-04/NASA_PDS_SMALL_BODIES.html"
+    }
+  ]
+}
